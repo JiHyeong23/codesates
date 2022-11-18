@@ -54,7 +54,7 @@ public class stringifyJSON {
         else if (data instanceof Boolean) return String.valueOf(data);
         //입력된 값이 Object[]일 경우
         else if (data instanceof Object[]) {
-            
+          
         }
         //입력된 값이 HashMap일 경우
         else if (data instanceof HashMap) {
