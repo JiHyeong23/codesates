@@ -54,7 +54,16 @@ public class stringifyJSON {
         else if (data instanceof Boolean) return String.valueOf(data);
         //입력된 값이 Object[]일 경우
         else if (data instanceof Object[]) {
-            
+            StringBuilder sb = new StringBuilder();
+            sb.append("[");
+            Object[] dataArray = (Object[]) data;
+            for(int i = 0; i<dataArray.length; i++) {
+                //재귀
+                sb.append(stringify(dataArray[i])).append(",");
+            }
+            if(sb.charAt(sb.length()-1) == ',') sb.delete(sb.length()-1, sb.length());
+            sb.append("]");
+            return sb.toString();
         }
         //입력된 값이 HashMap일 경우
         else if (data instanceof HashMap) {
