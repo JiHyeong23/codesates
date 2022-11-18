@@ -54,14 +54,34 @@ public class stringifyJSON {
         else if (data instanceof Boolean) return String.valueOf(data);
         //입력된 값이 Object[]일 경우
         else if (data instanceof Object[]) {
-          
+
+            StringBuilder sb = new StringBuilder();
+            sb.append("[");
+            Object[] dataArray = (Object[]) data;
+            for(int i = 0; i<dataArray.length; i++) {
+                //재귀
+                sb.append(stringify(dataArray[i])).append(",");
+            }
+            if(sb.charAt(sb.length()-1) == ',') sb.delete(sb.length()-1, sb.length());
+            sb.append("]");
+            return sb.toString();
         }
         //입력된 값이 HashMap일 경우
         else if (data instanceof HashMap) {
-
+            StringBuilder sb = new StringBuilder();
+            sb.append("{");
+            HashMap<Object, Object> hashMap = (HashMap<Object, Object>)data;
+            Iterator<Map.Entry<Object,Object>> entryIterator = hashMap.entrySet().iterator();
+            while (entryIterator.hasNext()) {
+                Map.Entry<Object,Object> entry = entryIterator.next();
+                sb.append(stringify(entry.getKey())).append(":").append(stringify(entry.getValue())).append(",");
+            }
+            if(sb.charAt(sb.length()-1) == ',') sb.delete(sb.length()-1, sb.length());
+            sb.append("}");
+            return sb.toString();
         }
         //지정되지 않은 타입의 경우에는 "null"을 리턴합니다.
         else return "null";
-        return "";
+
     }
 }
