@@ -1,4 +1,4 @@
-package com.codestates.coffee;
+package com.codestates.coffee.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
