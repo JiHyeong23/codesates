@@ -9,5 +9,4 @@ public class Section3Week1HomeworkExceptionApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(Section3Week1HomeworkExceptionApplication.class, args);
 	}
-
 }
