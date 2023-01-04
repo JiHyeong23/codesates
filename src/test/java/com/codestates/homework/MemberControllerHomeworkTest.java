@@ -1,6 +1,7 @@
 package com.codestates.homework;
 
 import com.codestates.member.dto.MemberDto;
+import com.codestates.member.entity.Member;
 import com.google.gson.Gson;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,12 +11,15 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.startsWith;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @Transactional
@@ -54,7 +58,38 @@ public class MemberControllerHomeworkTest {
 
     @Test
     void patchMemberTest() throws Exception {
-        // TODO MemberController의 patchMember() 핸들러 메서드를 테스트하는 테스트 케이스를 여기에 작성하세요.
+        // TODO
+        MemberDto.Post post = new MemberDto.Post("hgd@gmail.com", "홍길동", "010-1234-5678");
+        String content = gson.toJson(post);
+        ResultActions actions =
+                mockMvc.perform(
+                        post("/v11/members")
+                                .accept(MediaType.APPLICATION_JSON)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(content)
+                );
+        actions
+                .andExpect(status().isCreated())
+                .andExpect(header().string("Location", is(startsWith("/v11/members/"))));
+        //given
+        MemberDto.Patch patch = new MemberDto.Patch(1L, "홍길동", "010-4567-5678", Member.MemberStatus.MEMBER_ACTIVE);
+        String patchContent = gson.toJson(patch);
+
+        //when
+        ResultActions patchActions =
+                mockMvc.perform(
+                        patch("/v11/members/1")
+                                .accept(MediaType.APPLICATION_JSON)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(patchContent)
+                );
+
+        // then
+        patchActions
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.name").value(patch.getName()))
+                .andExpect(jsonPath("$.data.phone").value(patch.getPhone()))
+                .andExpect(jsonPath("$.data.memberStatus").value(patch.getMemberStatus().getStatus()));
     }
 
     @Test
@@ -87,11 +122,60 @@ public class MemberControllerHomeworkTest {
 
     @Test
     void getMembersTest() throws Exception {
-        // TODO MemberController의 getMembers() 핸들러 메서드를 테스트하는 테스트 케이스를 여기에 작성하세요.
+        // TODO
+        List<MemberDto.Post> members = new ArrayList<>();
+        members.add(new MemberDto.Post("hgd@gmail.com","홍길동","010-1111-1111"));
+        members.add(new MemberDto.Post("hgd@mail.com","홍길도","010-1111-1121"));
+        for (MemberDto.Post member : members) {
+            mockMvc.perform(
+                    post("/v11/members")
+                            .accept(MediaType.APPLICATION_JSON)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(gson.toJson(member))
+            );
+        }
+
+        //when
+        ResultActions actions = mockMvc.perform(
+                get("/v11/members?page=1&size=2")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+        );
+
+        //then
+        actions
+                .andExpect(status().isOk())
+               // .andDo(MockMvcResultHandlers.print());
+                .andExpect(jsonPath("$.data[1].email").value("hgd@gmail.com"))
+                .andExpect(jsonPath("$.data[0].email").value("hgd@mail.com"))
+                .andExpect(jsonPath("$.data[1].name").value("홍길동"))
+                .andExpect(jsonPath("$.data[0].name").value("홍길도"))
+                .andExpect(jsonPath("$.data[1].phone").value("010-1111-1111"))
+                .andExpect(jsonPath("$.data[0].phone").value("010-1111-1121"));
     }
 
     @Test
     void deleteMemberTest() throws Exception {
-        // TODO MemberController의 deleteMember() 핸들러 메서드를 테스트하는 테스트 케이스를 여기에 작성하세요.
+        // TODO
+        MemberDto.Post post = new MemberDto.Post("hgd@gmail.com", "홍길동", "010-1234-5678");
+        String content = gson.toJson(post);
+        ResultActions actions =
+                mockMvc.perform(
+                        post("/v11/members")
+                                .accept(MediaType.APPLICATION_JSON)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(content)
+                );
+
+        //when
+        long memberId;
+        String location = actions.andReturn().getResponse().getHeader("Location"); // "/v11/members/1"
+        memberId = Long.parseLong(location.substring(location.lastIndexOf("/") + 1));
+
+        ResultActions deleteActions = mockMvc.perform(delete("/v11/members/"+memberId));
+
+        deleteActions
+                .andExpect(status().isNoContent())
+                .andDo(MockMvcResultHandlers.print());
     }
 }
