@@ -43,13 +43,10 @@ class MemberControllerMockTest {
     @Test
     void postMemberTest() throws Exception {
         // given
-        MemberDto.Post post = new MemberDto.Post("hgd@gmail.com",
-                                                        "홍길동",
-                                                    "010-1234-5678");
+        MemberDto.Post post = new MemberDto.Post("hgd@gmail.com", "홍길동", "010-1234-5678", new Stamp());
 
         Member member = mapper.memberPostToMember(post);
         member.setMemberId(1L);
-        member.setStamp(new Stamp());
 
         // stubbing
         given(memberService.createMember(Mockito.any(Member.class))).willReturn(member);
